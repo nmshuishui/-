@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}虚拟服务器管理{% endblock %}
+{% block virtuals %}active{% endblock %}
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>虚拟服务器管理</li>
+        </ol>
+
+        {% if session.username == "admin" %}
+            <p>
+                <a href="/virtualadd/" class='btn btn-sm btn-primary'>添加虚拟服务器</a>
+            </p>
+        {% endif %}
+        <table class="table table-striped table-bordered table-hover " id="editable">
+        <thead>
+            <tr>
+                <th class="text-center">区服</th>
+                <th class="text-center">平台ID</th>
+                <th class="text-center">ServerID</th>
+                <th class="text-center">主机名</th>
+                <th class="text-center">内网IP</th>
+                <th class="text-center">外网IP</th>
+                <th class="text-center">cpu</th>
+                <th class="text-center">内存</th>
+                <th class="text-center">硬盘</th>
+                <th class="text-center">mongo主从关系</th>
+                <th class="text-center">宿主机</th>
+                <th class="text-center">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+           {% if virtuals %}
+           {% for virtual in virtuals %}
+                <tr class="gradeX">
+                        <td class="text-center">{{virtual.qufu}}</td>
+                        <td class="text-center">{{virtual.platform}}</td>
+                        <td class="text-center">{{virtual.serverid}}</td>
+                        <td class="text-center">{{virtual.hostname}}</td>
+                        <td class="text-center">{{virtual.lan_ip}}</td>
+                        <td class="text-center">{{virtual.wan_ip}}</td>
+                        <td class="text-center">{{virtual.cpu}}</td>
+                        <td class="text-center">{{virtual.mem}}</td>
+                        <td class="text-center">{{virtual.disk}}</td>
+                        <td class="text-center">{{virtual.master_slave}}</td>
+                        <td class="text-center">{{virtual.server_id}}</td>
+                        <td class="text-center">
+                            {% if session.role == "admin" %}
+                            <button data-id="{{virtual.id}}" class="btn btn-xs btn-info update">编辑</button>
+                            <button data-id="{{virtual.id}}" class="btn btn-xs btn-danger del">删除</button>
+                            {% endif %}
+                        </td>
+                 </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+        </table>
+
+
+        <div class="modal fade" id='updateModel'>
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">更新虚拟服务器</h4>
+              </div>
+              <div class="modal-body">
+            <form method="post" id="updateForm" class="form-horizontal">
+                <div>
+                <input id='id' type='hidden' name='id' readonly='true'>
+                </div><!-- id -->
+
+                <div class='form-group'>
+                <label for="qufu" class="col-sm-3 control-label">区服</label>
+                <div class="col-sm-7">
+                    <input id="qufu" name="qufu" placeholder="qufu" type="text" class="form-control">
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="platform" class="col-sm-3 control-label">平台ID</label>
+                <div class="col-sm-7">
+                    <input id="platform" name="platform" placeholder="platform" type="text" class="form-control">
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="serverid" class="col-sm-3 control-label">ServerID</label>
+                <div class="col-sm-7">
+                    <input id="serverid" name="serverid" placeholder="serverid" type="text" class="form-control">
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="hostname" class="col-sm-3 control-label">主机名</label>
+                <div class="col-sm-7">
+                    <input id="hostname" name="hostname" placeholder="hostname" type="text" class="form-control">
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="lan_ip" class="col-sm-3 control-label">内网IP</label>
+                <div class="col-sm-7">
+                    <input id="lan_ip" name="lan_ip" placeholder="Lan ip" type="text" class="form-control" >
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="wan_ip" class="col-sm-3 control-label">外网IP</label>
+                <div class="col-sm-7">
+                    <input id="wan_ip" name="wan_ip" placeholder="Wan ip" type="text" class="form-control">
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="cpu" class="col-sm-3 control-label">cpu</label>
+                <div class="col-sm-7">
+                    <input id="cpu" name="cpu" placeholder="cpu" type="text" class="form-control" >
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="mem" class="col-sm-3 control-label">内存</label>
+                <div class="col-sm-7">
+                    <input id="mem" name="mem" placeholder="mem" type="text" class="form-control" >
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="disk" class="col-sm-3 control-label">硬盘</label>
+                <div class="col-sm-7">
+                    <input id="disk" name="disk" placeholder="disk ip" type="text" class="form-control" >
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="master_slave" class="col-sm-3 control-label">mongo主从关系</label>
+                <div class="col-sm-7">
+                    <input id="master_slave" name="master_slave" placeholder="master_slave" type="text" class="form-control" >
+                </div>
+                </div>
+
+                <div class='form-group'>
+                <label for="server_id" class="col-sm-3 control-label">宿主机</label>
+                <div class="col-sm-7">
+                    <select id='server_id' name="server_id" class='multiselect dropdown-toggle btn btn-default'>
+
+                    </select>
+                </div>
+                </div>
+            </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary submit" data-name=''>确认</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+//$('#updateForm').Validform({tiptype:3});
+
+$('.update').click(function(){
+    var id=$(this).attr('data-id');
+    var url = "/virtualupdate/";
+    var str = '';
+    $.getJSON('/serverinfo/', function(data){
+        for(var i=0;i<data.length;i++){
+            str += '<option value="'+data[i]['id']+'">'+data[i]['hostname']+'</option>'
+            }
+        $('#server_id').html(str);
+    });
+
+    $.getJSON(url, {'id': id}, function(data){
+        data = JSON.parse(data);
+        $('#id').val(data['id']);
+        $('#qufu').val(data['qufu']);
+        $('#platform').val(data['platform']);
+        $('#serverid').val(data['serverid']);
+        $('#hostname').val(data['hostname']);
+        $('#lan_ip').val(data['lan_ip']);
+        $('#wan_ip').val(data['wan_ip']);
+        $('#cpu').val(data['cpu']);
+        $('#mem').val(data['mem']);
+        $('#disk').val(data['disk']);
+        $('#master_slave').val(data['master_slave']);
+        $("#server_id option[value='" + data['server_id'] +"']").attr("selected",true);
+    });
+
+    $('#updateModel').modal('show')
+});
+
+
+$(".submit").click(function() {
+    $.post('/virtualupdate/', $('#updateForm').serialize(), function (data) {
+        data = JSON.parse(data);
+        if (data['code']==0){
+             swal({title: "更新成功"}, function () {
+                $('#updateModal').modal('hide');
+                 window.location.reload()
+             })
+        }else{
+             swal(data['errmsg'])
+              }
+   });
+        return false
+});
+
+
+$('.del').click(function(){
+    var id=$(this).attr('data-id');
+    swal({
+       title: "Are you sure?",
+       text: "You will not be able to recover this imaginary file!",
+       type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+       confirmButtonText: "Yes, delete it!",
+       closeOnConfirm: false
+    },
+    function() {
+        $.post('/virtualdel/', {'id': id}, function (data) {
+            data = JSON.parse(data);
+            if (data["code"] == 0) {
+                swal({
+                    title: '删除成功',
+                    text: data['result'],
+                    type: 'success',
+                    confirmButtonText: 'Cool'
+                }, function () {
+                    location.reload()
+                })
+            } else {
+                swal('Error', data['errmsg'], 'error')
+            }
+        });
+        return false
+    });
+});
+
+
+$('#editable').DataTable({
+    "bDestroy": true,
+    "iDisplayLength": 100,
+    "language": {
+        "lengthMenu": "每页 _MENU_ 条记录",
+        "zeroRecords": "没有找到记录",
+        "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+        "infoEmpty": "无记录",
+        "infoFiltered": "(从 _MAX_ 条记录过滤)",
+        "sSearch": "搜索:",
+        "oPaginate": {
+        "sFirst": "首页",
+        "sPrevious": "上一页",
+        "sNext": "下一页",
+        "sLast": "末页"
+        }
+    },
+    "order": [[ 0,"asc" ]]
+})
+</script>
+{% endblock %}

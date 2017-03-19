@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}游戏运营趋势{% endblock %}
+{% block css %}{% endblock %}
+{% block data_trend %}active{% endblock %}
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>游戏运营趋势</li>
+        </ol>
+        <div>
+                <p>
+                    <a><select id="ptname" name="ptname" class="btn btn-default ptname_select">
+                            <option value="all">总收入</option>
+                            <option value="7">4399</option>
+                            <option value="3">7k7k</option>
+                            <option value="10">2144</option>
+                            <option value="21 ">360</option>
+                            <option value="13">腾讯</option>
+                            <option value="25">铁血</option>
+                            <option value="27">迅雷</option>
+                            <option value="22">酷狗</option>
+                       </select>
+                        <button type="submit"  class="btn btn-success ptname">选择平台</button></a>
+                    </a>
+                </p>
+        </div>
+        <div id="container" style="min-width:800px;height:680px"></div>
+    </div>
+{% endblock %}
+{% block script %}
+{#    <script type="application/javascript" src="/static/js/highcharts.js"></script>#}
+    <script type="application/javascript" src="/static/js/highstock.js"></script>
+    <script type="application/javascript" src="/static/js/exporting.js"></script>
+{% endblock %}
+{% block js %}
+    <script type="application/javascript" >
+        $(function () {
+            // 使用当前时区，否则东八区会差八个小时
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                },
+                lang: {
+                    printChart:"打印图表",
+                    downloadJPEG: "下载JPEG 图片" ,
+                    downloadPDF: "下载PDF文档"  ,
+                    downloadPNG: "下载PNG 图片"  ,
+                    downloadSVG: "下载SVG 矢量图" ,
+                    exportButtonTitle: "导出图片" ,
+                    months:['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月','九月',  '十月','十一月', '十二月'],
+                    weekdays:['星期日',  '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+                },
+                rangeSelector: {
+                    buttons: [{//定义一组buttons,下标从0开始
+                    type: 'week',
+                    count: 1,
+                    text: '1周'
+                    },{
+                    type: 'month',
+                    count: 1,
+                    text: '1月'
+                    }, {
+                    type: 'month',
+                    count: 3,
+                    text: '3月'
+                    }, {
+                    type: 'month',
+                    count: 6,
+                    text: '6月'
+                    }, {
+                    type: 'ytd',
+                    text: '1季度'
+                    }, {
+                    type: 'year',
+                    count: 1,
+                    text: '1年'
+                    }, {
+                    type: 'all',
+                    text: '全部'
+                    }],
+                    buttonTheme: {
+                    width: 36,
+                    height: 16,
+                    padding: 1,
+                    r: 0,
+                    stroke: '#68A',
+                    zIndex: 7
+                    },
+                    inputDateFormat: '%Y-%m-%d',
+                    inputEditDateFormat: '%Y-%m-%d',
+                    selected: 1//表示以上定义button的index,从0开始
+                    },
+            });
+{#            定义默认加载4399#}
+            var ptname = ''
+{#            console.log(ptname)#}
+            if (ptname == ''){
+                url = '/data_trend/data/?ptname=all'
+                highchar(url,'总收入'+': RMB')
+            }
+{#            定义当选择平台后加载的数据#}
+            $(".ptname").on('click', function () {
+                var ptname = jQuery('.ptname_select option:selected').text()
+                var ptargs = jQuery('.ptname_select option:selected').val()
+{#                console.log(ptname)#}
+{#                console.log(ptargs)#}
+                url = '/data_trend/data/?ptname=' + ptargs
+{#                console.log(url)#}
+                highchar(url,ptname+': RMB')
+
+            });
+
+            function highchar(url,ptname) {
+                $.getJSON(url, function (data) {
+                // Create the chart
+                    $('#container').highcharts('StockChart', {
+                        rangeSelector : {
+                            selected : 1
+                        },
+
+                        title : {
+                            text : '每日收入趋势'+' ('+ptname+')',
+                        },
+
+                        series : [{
+                            name : '当日收入(RMB)',
+                            data : data,
+                            tooltip: {
+                                valueDecimals: 2
+                            }
+                        }]
+                    });
+                });
+            }
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% block title %}用户列表{% endblock %}
+{% block user_list %}active{% endblock %}
+
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>用户列表</li>
+        </ol>
+
+    {% if session.username != 'admin' %}
+        <a href="/users/regedit/"><button type="button" class="btn btn-primary" disabled="disabled">添加用户</button></a>
+    {% else %}
+        <p>
+            <a href="/users/regedit/"><button type="button" class="btn btn-primary">添加用户</button></a>
+        </p>
+    {% endif %}
+        <table class="table table-bordered table-hover" id="editable">
+            <thead>
+                <th hidden>id</th>
+                <th style="text-align: center ">用户名</th>
+                <th style="text-align: center ">中文名</th>
+                <th style="text-align: center ">密码</th>
+                <th style="text-align: center ">邮箱</th>
+                <th style="text-align: center ">手机</th>
+                <th style="text-align: center ;width: 5%">角色</th>
+                <th style="text-align: center ">账号状态</th>
+                <th style="text-align: center ">账号创建时间</th>
+                <th style="text-align: center ">最新登录时间</th>
+                <th style="text-align: center ">操作</th>
+            </thead>
+            {% for user in users %}
+            <tbody align="center">
+                <td hidden>{{ user.id }}</td>
+                <td style="vertical-align: middle">{{ user.name }}</td>
+                <td style="vertical-align: middle">{{ user.name_cn }}</td>
+                <td style="vertical-align: middle">{{ user.password }}</td>
+                <td style="vertical-align: middle">{{ user.email }}</td>
+                <td style="vertical-align: middle">{{ user.mobile }}</td>
+                {% if user.role == 'admin' %}
+                    <td style="vertical-align: middle">管理员</td>
+                {% else %}
+                    <td style="vertical-align: middle">普通用户</td>
+                {% endif %}
+                {% if user.status == '0' %}
+                    <td style="vertical-align: middle">正常</td>
+                {% else %}
+                    <td style="vertical-align: middle">锁定</td>
+                {% endif %}
+                <td style="vertical-align: middle">{{ user.create_time }}</td>
+                <td style="vertical-align: middle">{{ user.last_time }}</td>
+                {% if session.username == 'admin' and user.name == 'admin' %}
+                <td>
+                    <button type="button" class="btn btn-info update" data-toggle="modal" data-id={{ user.id }} data-target="#dialog">更新</button>
+                    <a><button type="button" class="btn btn-info passwd" data-name="{{ user.name }}">修改密码</button></a>
+                    <button  type="button" class="btn btn-info" onclick="deluser({{ user.id }})" disabled="disabled">删除</button>
+                </td>
+                {% elif session.username == 'admin' and user.name != 'admin' %}
+                <td>
+                    <button type="button" class="btn btn-info update" data-toggle="modal" data-id={{ user.id }} data-target="#dialog">更新</button>
+                    <a><button type="button" class="btn btn-info passwd" data-name="{{ user.name }}">修改密码</button></a>
+                    <button type="button" class="btn btn-info" onclick="userdel({{ user.id }})">删除</button>
+                </td>
+                {% elif session.username == user.name %}
+                <td>
+                    <button type="button" class="btn btn-info update" data-toggle="modal" data-id={{ user.id }} data-target="#dialog">更新</button>
+                    <a><button type="button" class="btn btn-info passwd" data-name="{{ user.name }}">修改密码</button></a>
+                    <button type="button" class="btn btn-info" onclick="userdel({{ user.id }})" disabled="disabled">删除</button>
+                </td>
+                {% else %}
+                <td>
+                    <button type="button" class="btn btn-info update" data-toggle="modal" data-id={{ user.id }} data-url="/users/update?id={{ user.id }}" data-target="#dialog" disabled="disabled">更新</button>
+                    <a><button type="button" class="btn btn-info passwd" disabled="disabled" data-name="{{ user.name }}">修改密码</button></a>
+                    <button type="button" class="btn btn-info" onclick="userdel({{ user.id }})" disabled="disabled">删除</button>
+                </td>
+                {% endif %}
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+{% block dialog %}
+        <!--更新模态窗-->
+        <div class="modal fade"  id ="updateModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">更新用户信息</h4>
+              </div>
+              <div class="modal-body">
+                <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- for error msg-->
+                    <form id="updateForm" class="form-horizontal nice-validator n-yellow" novalidate="novalidate">
+                    <input type="hidden" id='upid' name="id"><!--update need id-->
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">用户名<span class="red-fonts">*</span></label>
+                        <div class="col-sm-8">
+                            <input id="name" name="name" placeholder="Username" type="text" class="form-control" readonly="">
+                        </div>
+                    </div><!--username-->
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">姓名<span class="red-fonts">*</span></label>
+                        <div class="col-sm-8">
+                            <input id="name_cn" name="name_cn" placeholder="Name_cn" type="text" class="form-control">
+                        </div>
+                    </div><!--name-->
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label for="mobile" class="col-sm-2 control-label">Mobile<span class="red-fonts">*</span></label>
+                        <div class="col-sm-8">
+                            <input id="mobile" name="mobile" placeholder="Mobile" class="form-control">
+                        </div>
+                    </div><!--mobile-->
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">Email<span class="red-fonts">*</span></label>
+                        <div class="col-sm-8">
+                            <input id="email" name="email" type="email" placeholder="Email" class="form-control">
+                        </div>
+                    </div><!--Email-->
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                    <label class="col-sm-2 control-label">角色<span class="red-fonts">*</span></label>
+                        <div class="col-sm-8">
+                            <div class="col-sm-4">
+                                <div class="radio i-checks">
+                                    <label><input type="radio" value="user" name="role" class="role-user">普通用户</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="radio i-checks">
+                                    <label><input type="radio" value="admin" name="role" class="role-admin">管理员</label>
+                                 </div>
+                            </div>
+                        </div>
+                    </div><!--role-->
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                    <label class="col-sm-2 control-label">状态<span class="red-fonts">*</span></label>
+                      <div class="col-sm-8">
+                        <div class="col-sm-4">
+                            <div class="radio i-checks">
+                                <label><input type="radio" value="0" name = "status" class="status-enable">启用</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="radio i-checks">
+                                <label><input type="radio" value="1" name = "status" class="status-disable">禁用</label>
+                            </div>
+                        </div>
+                     </div>
+                </div> <!--status-->
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <div class="modal-footer">
+                         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="updatebtn">确认</button>
+                    </div>
+                </div> <!--button-->
+                </form> <!--form-->
+              </div> <!--modal-body-->
+
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!--更新密码模态窗-->
+        <div id="updatepasswd"  class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+             <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span ariaa-hidden="true">&times;</span></button>
+            <h3 class="modal-title">修改用户密码</h3>
+            </div> <!--modal-header end-->
+            <div class="modal-body">
+            <form class="form-horizontal" id="updatepw">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">用户名</label>
+                     <div class="col-sm-10">
+                        <input id="username" class="form-control" type="text" value="" name="username" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">新密码</label>
+                     <div class="col-sm-10">
+                        <input class="form-control" type="password"  name="newpasswd" >
+                    </div>
+                </div> <!--newpasswd  end-->
+                <div class="form-group">
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id = "uppwbtn" >更新</button>
+                        <button class="btn btn-warni ng exit-btn" data-dismiss="modal">退出</button>
+                    </div>
+              </div><!--button end-->
+            </form><!--form end-->
+          </div> <!--modal-body end -->
+
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div> <!--modal end-->
+        <!--模态窗结束-->
+
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+    function userdel(id) {
+        swal({
+           title: "Are you sure?",
+           text: "You will not be able to recover this imaginary file!",
+           type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+           confirmButtonText: "Yes, delete it!",
+           closeOnConfirm: false
+        },
+	        function(){
+                $.get('/users/delete/', {"id": id}, function (result) {
+                    swal({
+                        title: "Deleted!",
+                        text: "Your imaginary file has been deleted.",
+                        type: "success"
+                    }, function() {
+                        window.location.href = "/users/";
+                    });
+                })
+            });
+    }
+jQuery(document).ready(function () {
+
+    // 点击更新按钮，获取id，从逻辑端查出对应的数据，弹出模态窗渲染数据
+    $(".update").click(function(){
+        var id=$(this).attr("data-id");
+        $.getJSON("/users/update/",{'id':id},function(data){
+                $("#upid").val(data["id"]);
+                $("#name").val(data["name"]);
+                $("#name_cn").val(data["name_cn"]);
+                $("#mobile").val(data["mobile"]);
+                $("#email").val(data["email"]);
+{#                $("#role").val(data["role"]);#}
+{#                $("#status").val(data["status"]);#}
+                if(data['role'] == 'admin'){
+                    $(".role-admin").attr("checked", "checked")
+                } else{
+                    $(".role-user").attr("checked", true)
+                }
+
+                if(data['status'] == 0){
+                    $(".status-enable").attr("checked", true)
+                }else{
+                    $(".status-disable").attr("checked", true)
+                }
+
+            $('#updateModal').modal('show')
+            });
+    });
+
+
+    /*admin更新用户信息*/
+    $("#updatebtn").on('click',function(){
+       var str = $("#updateForm").serialize();
+       var url = '/users/update/';
+       $.post(url,str,function(data){
+            data=JSON.parse(data);
+            if (data['code']==0){   //recevie json object
+                 swal({title: "更新成功"}, function () {
+                    $('#updateModal').modal('hide');
+                     window.location.reload()
+                 })
+            }else{
+                 swal(data['errmsg'])
+                  }
+       });
+            return false
+    });
+
+
+    /*admin修改密码*/
+    $("#uppwbtn").on('click',function(){
+       var str = $("#updatepw").serialize();
+       var url = '/users/chpwdadmin/';
+       $.post(url,str,function(data){
+            data=JSON.parse(data);
+            if (data['code']==0){   //recevie json object
+                 swal({title: "更新成功"}, function () {
+                    $('#updatepasswd').modal('hide')
+                     window.location.reload()
+                 })
+            }else{
+                 swal(data['errmsg'])
+                  }
+       });
+            return false
+    });
+
+    /*修改密码的模态窗显示 */
+    $('.passwd').on('click', function () {
+        var username = $(this).attr('data-name');
+        $("#username").attr('value', username);
+        $('#updatepasswd').modal('show')
+    });
+
+
+    $('#editable').DataTable({
+    "bDestroy": true,
+    "language": {
+        "lengthMenu": "每页 _MENU_ 条记录",
+        "zeroRecords": "没有找到记录",
+        "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+        "infoEmpty": "无记录",
+        "infoFiltered": "(从 _MAX_ 条记录过滤)",
+        "sSearch": "搜索:",
+        "oPaginate": {
+        "sFirst": "首页",
+        "sPrevious": "上一页",
+        "sNext": "下一页",
+        "sLast": "末页"
+        }
+    },
+    "order": [[ 0,"asc" ]]
+})
+
+})
+</script>
+{% endblock %}

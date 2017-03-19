@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}添加用户{% endblock %}
+{% block user_create %}active{% endblock %}
+{% block main %}
+
+
+    <div class="col-md-10 right">
+
+    <ol class="breadcrumb">
+      <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+      <li class="active">添加用户</li>
+    </ol>
+
+      <form id="addForm" class="form-horizontal">
+          <div class="form-group">
+            <label for="name" class="col-md-2 control-label">用户名：</label>
+            <div class="col-md-10">
+                <input id='name' type='text' name='name'>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="name_cn" class="col-md-2 control-label">中文名：</label>
+            <div class="col-md-10">
+                <input id='name_cn' type='text' name='name_cn'>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mobile" class="col-md-2 control-label">手机号：</label>
+            <div class="col-md-10">
+                <input id='mobile' type='text' name='mobile'>
+            </div>
+          </div>
+
+          <div class="form-group">
+              <label for="email" class="col-md-2 control-label">邮箱号：</label>
+              <div class="col-md-10">
+                  <input id='email' type='text' name='email'>
+              </div>
+          </div>
+
+          <div class="form-group">
+             <label class="col-md-2 control-label">角色：</label>
+             <div class="col-md-10">
+                <select name='role' id='role'>
+                    <option value="admin">管理员</option>
+                    <option value="user">普通用户</option>
+                </select>
+             </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-md-2 control-label">状态：</label>
+            <div class="col-md-10">
+                <select name='status' id='status'>
+                    <option value=0>正常</option>
+                    <option value=1>锁定</option>
+                </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="col-md-2 control-label">密码：</label>
+            <div class="col-md-10">
+                <input id='password' type='password' name='password'>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="repwd" class="col-md-2 control-label">重复密码：</label>
+            <div class="col-md-10">
+                <input id='repwd' type='password' name='repwd'>
+            </div>
+          </div>
+
+        </form>
+        <div class="col-md-4 col-md-offset-2">
+            <button type="button" class="btn btn-primary" id="addUser">添加用户</button>
+            <a href="/users/"> <button type="button" class="btn btn-primary">返回</button></a>
+        </div>
+        <p id="error1" style="color:red"></p>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#addUser").click(function () {
+            var data = $("#addForm").serialize();
+            $.post('/users/add/', data, function (result) {
+                result = JSON.parse(result);
+                if(result['status'] == 0){
+                    window.location.href = '/users/';
+                }else{
+                    console.log(result['msg']);
+                    $("p#error1").text(result['msg']);
+                }
+            })
+        })
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,8 @@
+flask
+ipython
+gunicorn
+flask-socketio
+flask-login
+paramiko
+celery
+apscheduler

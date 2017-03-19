@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}战斗帧率统计{% endblock %}
+{% block link %}
+<style>
+.jiantou_up{
+  color: #08ff72 !important;
+}
+.jiantou_down{
+  color: #ff0816 !important;
+}
+</style>
+{% endblock %}
+{% block req_url_7k7k %}/frame/?ptname=7k7k{% endblock %}
+{% block req_url_4399 %}/frame/?ptname=4399{% endblock %}
+{% block battle_frame_rate %}active{% endblock %}
+{% block main %}
+
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>战斗帧率统计</li>
+        </ol>
+        <p>
+            <select id='sel_type' name="type_sel" class='multiselect dropdown-toggle btn btn-default'>
+                  <option value=1>进入战斗统计</option>
+                  <option value=2>战斗帧率统计</option>
+                  <option value=3>鼠标移动统计</option>
+                  <option value=4>游戏加载统计</option>
+                  <option value=5>游戏内存统计</option>
+                  <option value=6>游戏卡顿统计</option>
+            </select>
+            <select id='platform' name="platform" class='multiselect dropdown-toggle btn btn-default'>
+                  <option value=7>4399</option>
+                  <option value=3>7k7k</option>
+            </select>
+             &nbsp;<button type="submit" class="btn btn-success search">数据查询</button>
+        </p>
+        <table class="table table-bordered table-striped table-hover info" id="editable">
+          <thead align="center" >
+            <tr class="active">
+                <td width="60">日期</td>
+                <td width="60">平台</td>
+                <td width="60">49帧以下</td>
+                <td width="60">49-55帧</td>
+                <td width="60">55帧以上</td>
+                <td width="30">新手49帧以下</td>
+                <td width="30">新手49-55帧</td>
+                <td width="30">新手55帧以上</td>
+                <td width="40">55帧以上日涨跌</td>
+                <td width="40">新手55帧以上日涨跌</td>
+                <td width="40">55帧以上周涨跌</td>
+                <td width="40">新手55帧以上周涨跌</td>
+                <td width="40">55帧以上月涨跌</td>
+                <td width="40">新手55帧以上月涨跌</td>
+            </tr>
+          </thead>
+          <tbody align="center">
+            {% for frame in frame_list %}
+                <tr>
+                    <td>{{ frame['date'] }}</td>
+                    <td>{{ frame['ptname'] }}</td>
+                    <td>{{ frame['frame_49'] }}%</td>
+                    <td>{{ frame['frame_55'] }}%</td>
+                    <td>{{ frame['frame_60'] }}%</td>
+                    <td>{{ frame['frame_49_new'] }}%</td>
+                    <td>{{ frame['frame_55_new'] }}%</td>
+                    <td>{{ frame['frame_60_new'] }}%</td>
+                    <td>{{ frame['frame_60_day']|safe }}</td>
+                    <td>{{ frame['frame_60_new_day']|safe }}</td>
+                    <td>{{ frame['frame_60_week']|safe }}</td>
+                    <td>{{ frame['frame_60_new_week']|safe }}</td>
+                    <td>{{ frame['frame_60_month']|safe }}</td>
+                    <td>{{ frame['frame_60_new_month']|safe }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+{% endblock %}
+
+{% block js %}
+<script>
+    jQuery(document).ready(function () {
+        var platform_select = $.cookie('platform_select');
+        $('#platform option[value=' + platform_select + ']').attr("selected", true);
+        $('#sel_type option[value=' + {{ type_sel }} + ']').attr("selected", true);
+    });
+
+    $('#editable').DataTable({
+        "bDestroy": true,
+        "iDisplayLength": 17,
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+            "sFirst": "首页",
+            "sPrevious": "上一页",
+            "sNext": "下一页",
+            "sLast": "末页"
+            }
+        },
+        "order": [[ 0,"desc" ]]
+    });
+
+    $(".search").click(function () {
+        var platformid = $("#platform").val();
+        var sel_type = $("#sel_type").val()
+        if(platformid==7){
+            platform = '4399'
+        }else if(platformid==3){
+            platform = '7k7k'
+        };
+        $.cookie('platform_select', platformid);
+        if (sel_type == 1){
+            window.location.href='/enter_battle/?ptname=' + platform
+        }else if(sel_type == 2){
+            window.location.href='/battle_frame_rate/?ptname=' + platform
+        }else if(sel_type == 3){
+            window.location.href='/game_mouse/?ptname=' + platform
+        }else if(sel_type == 4){
+            window.location.href='/game_load/?ptname=' + platform
+        }else if(sel_type == 5){
+            window.location.href='/game_mem/?ptname=' + platform
+        }else if(sel_type == 6){
+            window.location.href='/game_kadun/?ptname=' + platform
+        }
+    })
+</script>
+{% endblock %}

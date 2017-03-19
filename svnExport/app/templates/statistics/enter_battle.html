@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}进入战斗统计{% endblock %}
+{% block link %}
+<style>
+.jiantou_up{
+  color: #08ff72 !important;
+}
+.jiantou_down{
+  color: #ff0816 !important;
+}
+</style>
+{% endblock %}
+{% block req_url_7k7k %}/enter_game/?ptname=7k7k{% endblock %}
+{% block req_url_4399 %}/enter_game/?ptname=4399{% endblock %}
+{% block enter_battle %}active{% endblock %}
+{% block main %}
+
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>进入战斗统计</li>
+        </ol>
+        <p>
+            <select id='platform' name="platform" class='multiselect dropdown-toggle btn btn-default'>
+                  <option value=7>4399</option>
+                  <option value=3>7k7k</option>
+            </select>
+             &nbsp;<button type="submit" class="btn btn-success search">数据查询</button>
+        </p>
+        <table class="table table-bordered table-striped table-hover info" id="editable">
+          <thead align="center" >
+            <tr class="active">
+                <td width="50">日期</td>
+                <td width="40">平台</td>
+                <td width="40">成功率</td>
+                <td width="40">战斗资源加载率</td>
+                <td width="40">军团成功率</td>
+                <td width="40">房间成功率</td>
+                <td width="40">大厅成功率</td>
+                <td width="40">第一次进入房间成功率</td>
+                <td width="40">第一次进入大厅成功率</td>
+                <td width="40">第一次进入战斗成功率</td>
+                <td width="40">战斗内掉线率</td>
+                <td width="40">第一次战斗内掉线率</td>
+                <td width="40">天梯掉线率</td>
+                <td width="40">第一次天梯掉线率</td>
+                <td width="40">Trans踢掉率</td>
+                <td width="40">浏览器加速</td>
+                <td width="40">天梯匹配</td>
+            </tr>
+          </thead>
+          <tbody align="center">
+            {% for enter in enter_list %}
+                <tr>
+                    <td>{{ enter['date'] }}</td>
+                    <td>{{ enter['ptname'] }}</td>
+                    <td>{{ enter['success'] }}%</td>
+                    <td>{{ enter['battle_res_load'] }}%</td>
+                    <td>{{ enter['army_success'] }}%</td>
+                    <td>{{ enter['room_success'] }}%</td>
+                    <td>{{ enter['lobby_success'] }}%</td>
+                    <td>{{ enter['frist_root_success'] }}%</td>
+                    <td>{{ enter['frist_lobby_success'] }}%</td>
+                    <td>{{ enter['frist_battle_success'] }}%</td>
+                    <td>{{ enter['fighting_drop'] }}%</td>
+                    <td>{{ enter['frist_fighting_drop'] }}%</td>
+                    <td>{{ enter['ladder_drop'] }}%</td>
+                    <td>{{ enter['frist_ladder_drop'] }}%</td>
+                    <td>{{ enter['trans_drop'] }}%</td>
+                    <td>{{ enter['browser'] }}%</td>
+                    <td>{{ enter['ladder_match'] }}%</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+{% endblock %}
+
+{% block js %}
+<script>
+    jQuery(document).ready(function () {
+        var platform_select = $.cookie('platform_select');
+        $('#platform option[value=' + platform_select + ']').attr("selected", true);
+    });
+
+    $('#editable').DataTable({
+        "bDestroy": true,
+        "iDisplayLength": 17,
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+            "sFirst": "首页",
+            "sPrevious": "上一页",
+            "sNext": "下一页",
+            "sLast": "末页"
+            }
+        },
+        "order": [[ 0,"desc" ]]
+    });
+
+    $(".search").click(function () {
+        platformid = $("#platform").val();
+        if(platformid==7){
+            platform = '4399'
+        }else if(platformid==3){
+            platform = '7k7k'
+        };
+        $.cookie('platform_select', platformid);
+        window.location.href='/enter_battle/?ptname=' + platform
+    })
+</script>
+{% endblock %}

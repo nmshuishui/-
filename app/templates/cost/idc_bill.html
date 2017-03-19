@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% block title %}IDC月度详单{% endblock %}
+{% block idc_bill %}active{% endblock %}
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>IDC月度详单</li>
+        </ol>
+        <form>
+            <p>
+                <a methods="get"><input type="month" name="dates" value="{{ dates }}" class="btn btn-default" >&nbsp;<button type="submit" class="btn btn-success">历月查询</button></a>
+                {% if session.get('username',{}) == 'admin' %}
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#create-idcs">添加信息</button>
+                {% endif %}
+            </p>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover info">
+              <thead align="center" style="vertical-align: middle">
+                <tr >
+                    <td width="10">月份</td>
+                    <td width="10">机房</td>
+                    <td width="60">机柜数量</td>
+                    <td width="20">机柜单价</td>
+                    <td width="20">主机租金</td>
+                    <td width="20">带宽数量</td>
+                    <td width="20">带宽单价</td>
+                    <td width="20">带宽租金</td>
+                    <td width="20">合计租金</td>
+                    <td width="20">状态</td>
+                    <td width="100">备注</td>
+                    <td width="10">修改</td>
+                    <td width="10">删除</td>
+                </tr>
+              </thead>
+              <tbody align="center" >
+                {% for info in idc_list %}
+                    <tr class="warning">
+                        <td style="vertical-align: middle">{{ info['date'] }}</td>
+                        <td style="vertical-align: middle">{{ info['idcname'] }}</td>
+                        <td style="vertical-align: middle">{{ info['cabinet'] }}</td>
+                        <td style="vertical-align: middle">{{ info['cabinet_price'] }}</td>
+                        <td style="vertical-align: middle">{{ info['host_amount'] }}</td>
+                        <td style="vertical-align: middle">{{ info['bandwidth'] }}</td>
+                        <td style="vertical-align: middle">{{ info['bandwidth_price'] }}</td>
+                        <td style="vertical-align: middle">{{ info['bandwidth_amount'] }}</td>
+                        <td style="vertical-align: middle">{{ info['combined'] }}</td>
+                        <td style="vertical-align: middle">{{ info['status'] }}</td>
+                        <td style="vertical-align: middle">{{ info['info'] }}</td>
+                        {% if session.get('username',{}) == 'admin' %}
+                        <td>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#change-idcs" data-id="{{ info['id'] }}" data-idcname="{{ info['idcname'] }}"
+                        data-date="{{ info['date'] }}" data-cabinet="{{ info['cabinet'] }}" data-cabinet_price="{{ info['cabinet_price'] }}" data-host_amount="{{ info['host_amount'] }}"
+                        data-bandwidth="{{ info['bandwidth'] }}" data-bandwidth_price="{{ info['bandwidth_price'] }}" data-status="{{ info['status'] }}"
+                        data-info="{{ info['info'] }}" data-bandwidth_amount="{{ info['bandwidth_amount'] }}">调整</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-warning delete-idcs" data-toggle="modal" data-target="#delete-idcs" data-id="{{ info['id'] }}" data-idcname="{{ info['idcname'] }}"
+                        data-date="{{ info['date'] }}">删除</button>
+                        </td>
+                        {% else %}
+                        <td></td>
+                        <td></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot align="center">
+                    <tr class="table active">
+                        <td><h4>本月总计</h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td style="vertical-align: middle"><h4>{{ all_combined }}</h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+{% block dialog %}
+{# 添加信息  #}
+    <div class="modal fade" id="create-idcs" tabindex="-1" role="dialog" aria-labelledby="add-idc-info">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="add-idc-info">添加支付信息</h4>
+        </div>
+        <div class="modal-body">
+           <form method="post" enctype="multipart/form-data" class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputidcname" class="col-md-2 control-label">机房名字</label>
+                    <div class="col-md-9">
+                        <select name="idcname" id="inputidcname" class="col-md-2 form-control">
+                            <option value="网宿CDN">网宿CDN</option>
+                            <option value="Ucloud云">Ucloud云</option>
+                            <option value="腾讯CDN">腾讯CDN</option>
+                            <option value="帝联CDN">帝联CDN</option>
+                            <option value="帝联太原">帝联太原</option>
+                            <option value="高升沈阳">高升沈阳</option>
+                            <option value="广东中山">广东中山</option>
+                            <option value="帝联衡阳" selected="selected">帝联衡阳</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputdate" class="col-md-2 control-label">选择月份</label>
+                    <div class="col-md-9">
+                        <input type="month" class="form-control" name="date" value="" id="inputdate" placeholder="" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputcabinet" class="col-md-2 control-label">机柜数量</label>
+                    <div class="col-md-9">
+                        <select name="cabinet" id="inputcabinet" class="col-md-2 form-control">
+                            <option value="2">2(帝联衡阳)</option>
+                            <option value="1">1</option>
+                            <option value="0" selected="selected">0</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputcabinet_price" class="col-md-2 control-label">机柜单价</label>
+                    <div class="col-md-9">
+                        <select name="cabinet_price" id="inputcabinet_price" class="col-md-2 form-control">
+                            <option value="4200">4200.00(帝联衡阳)</option>
+                            <option value="4500">4500.00(帝联太原)</option>
+                            <option value="4000">4000.00(高升沈阳)</option>
+                            <option value="5000">5000.00(广东中山)</option>
+                            <option value="0" selected="selected">0</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inpuhost_amount" class="col-md-2 control-label">主机租金</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="host_amount" value=" 0" id="inputhost_amount" placeholder="" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputbandwidth" class="col-md-2 control-label">带宽数量</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="bandwidth" value="" id="inputbandwidth" placeholder="" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputbandwidth_price" class="col-md-2 control-label">带宽单价</label>
+                    <div class="col-md-9">
+                        <select name="bandwidth_price" id="inputbandwidth_price" class="col-md-2 form-control">
+                            <option value="21">21.00(帝联衡阳)</option>
+                            <option value="22">22.00(帝联太原)</option>
+                            <option value="50">50.00(广东中山)</option>
+                            <option value="16.70">16.70(高升沈阳)</option>
+                            <option value="80">80.00(Ucloud云)</option>
+                            <option value="0.12">0.12(帝联CDN)</option>
+                            <option value="0.11">0.11(腾讯CDN)</option>
+                            <option value="0.20" selected="selected">0.20(网宿CDN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputstatus" class="col-md-2 control-label">结算状态</label>
+                    <div class="col-md-9">
+                        <select name="status" id="inputstatus" class="col-md-2 form-control">
+                            <option value="已结清">已结清</option>
+                            <option value="未结清" selected="selected">未结清</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputinfo" class="col-md-2 control-label">备注信息</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="info" value=" " id="inputinfo" placeholder="">
+                    </div>
+                </div>
+           </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭退出</button>
+          <button id="idcs-add-commit" type="button" class="btn btn-primary">提交保存</button>
+        </div>
+     </div>
+    </div>
+    </div>
+{#修改信息#}
+    <div class="modal fade" id="change-idcs" tabindex="-1" role="dialog" aria-labelledby="change_idc_info">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="change_idc_info">调整资费信息</h4>
+        </div>
+        <div class="modal-body">
+           <form method="post" enctype="multipart/form-data" class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputid" class="col-md-2 control-label"></label>
+                    <div class="col-md-9">
+                        <input type="hidden" class="form-control" name="id" value="{{ id }}" id="update-id" readonly="readonly">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">机房名字</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="idcname" value="{{ idcname }}" id="update-idcname" placeholder="" readonly="readonly" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputdate" class="col-md-2 control-label">发生月份</label>
+                    <div class="col-md-9">
+                        <input type="month" class="form-control" name="date" value="{{ date }}" id="update-date" placeholder="" readonly="readonly" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">机柜数量</label>
+                    <div class="col-md-9">
+                        <select name="cabinet" id="update-cabinet" class="col-md-2 form-control">
+                            <option value="2">2(帝联衡阳)</option>
+                            <option value="1">1</option>
+                            <option value="0">0</option>
+                            <option value="{{ cabinet }}" selected="selected" ></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">机柜单价</label>
+                    <div class="col-md-9">
+                        <select name="cabinet_price" id="update-cabinet_price" class="col-md-2 form-control">
+                            <option value="4200.00">4200.00(帝联衡阳)</option>
+                            <option value="4500.00">4500.00(帝联太原)</option>
+                            <option value="4000.00">4000.00(高升沈阳)</option>
+                            <option value="5000.00">5000.00(广东中山)</option>
+                            <option value="0.00">0</option>
+                            <option value="{{ cabinet_price }}" selected="selected" ></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="update-host_amount" class="col-md-2 control-label">主机租金</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="host_amount" value=" {{ host_amount }}" id="update-host_amount">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="update-bandwidth" class="col-md-2 control-label">带宽数量</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="bandwidth" value="{{ bandwidth }}" id="update-bandwidth" placeholder="" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">带宽单价</label>
+                    <div class="col-md-9">
+                        <select name="bandwidth_price" id="update-bandwidth_price" class="col-md-2 form-control">
+                            <option value="21.00">21.00(帝联衡阳)</option>
+                            <option value="22.00">22.00(帝联太原)</option>
+                            <option value="16.70">16.70(高升沈阳)</option>
+                            <option value="50.00">50.00(广东中山)</option>
+                            <option value="80.00">80.00(Ucloud云)</option>
+                            <option value="0.12">0.12(帝联CDN)</option>
+                            <option value="0.11">0.11(腾讯CDN)</option>
+                            <option value="0.20">0.20(网宿CDN)</option>
+                            <option value="{{ bandwidth_price }}" selected="selected" ></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputstatus" class="col-md-2 control-label">结算状态</label>
+                    <div class="col-md-9">
+                        <select name="status" id="update-status" class="col-md-2 form-control">
+                            <option value="已结清">已结清</option>
+                            <option value="未结清">未结清</option>
+                            <option value="{{ status }}" selected="selected" ></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputinfo" class="col-md-2 control-label">备注信息</label>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="info" value=" {{ info }}" id="update-info" placeholder="">
+                    </div>
+                </div>
+            </form>
+        </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭退出</button>
+              <button id="change-idcs-commit" type="button" class="btn btn-primary">提交保存</button>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock%}
+{% block script %}
+    <script type="application/javascript" src="/static/js/sweetalert.min.js"></script>
+{% endblock %}
+{% block js %}
+    <script type="application/javascript">
+        jQuery(document).ready(function () {
+            //设置状态颜色
+            $("td:contains('未结清')").css("color", "red");
+            //修改IDC信息加载数据
+            jQuery('#change-idcs').on('show.bs.modal', function (event) {
+                var button = jQuery(event.relatedTarget)
+                var id = button.data('id')
+                var idcname = button.data('idcname')
+                var date = button.data('date')
+                var cabinet = button.data('cabinet')
+                var cabinet_price = button.data('cabinet_price')
+                var host_amount = button.data('host_amount')
+                var bandwidth = button.data('bandwidth')
+                var bandwidth_price = button.data('bandwidth_price')
+                var status = button.data('status')
+                var info = button.data('info')
+                jQuery('#update-id').val(id)
+                jQuery('#update-idcname').val(idcname)
+                jQuery('#update-date').val(date)
+                jQuery('#update-cabinet').val(cabinet)
+                jQuery('#update-cabinet_price').val(cabinet_price)
+                jQuery('#update-host_amount').val(host_amount)
+                jQuery('#update-bandwidth').val(bandwidth)
+                jQuery('#update-bandwidth_price').val(bandwidth_price)
+                jQuery('#update-status').val(status)
+                jQuery('#update-info').val(info)
+            })
+
+            //修改idc信息提交
+             jQuery('#change-idcs-commit').bind('click',function () {
+                 var params = {}
+                 params['id']  = jQuery('#update-id').val()
+                 params['idcname']  = jQuery('#update-idcname').val()
+                 params['date']  = jQuery('#update-date').val()
+                 params['cabinet']  = jQuery('#update-cabinet').val()
+                 params['cabinet_price']  = jQuery('#update-cabinet_price').val()
+                 params['host_amount']  = jQuery('#update-host_amount').val()
+                 params['bandwidth']  = jQuery('#update-bandwidth').val()
+                 params['bandwidth_price']  = jQuery('#update-bandwidth_price').val()
+                 params['status']  = jQuery('#update-status').val()
+                 params['info']  = jQuery('#update-info').val()
+                 jQuery.post('/idc_bill/update/',params,function (data) {
+                     if(data['is_ok']){
+                         var info = '更新成功';
+                         var text = '';
+                         var status = 'success';
+                     }else{
+                         var info = '更新失败';
+                         var text = data['error'];
+                         var status = 'error';
+                     }
+                     user_alert(info,text,status)
+                 })
+             })
+            //添加IDC信息
+            jQuery('#idcs-add-commit').bind('click',function () {
+             var params = {}
+             params['idcname'] = jQuery('#inputidcname').val();
+             params['date'] = jQuery('#inputdate').val();
+             params['cabinet'] = jQuery('#inputcabinet').val();
+             params['cabinet_price'] = jQuery('#inputcabinet_price').val();
+             params['host_amount'] = jQuery('#inputhost_amount').val();
+             params['bandwidth'] = jQuery('#inputbandwidth').val();
+             params['bandwidth_price'] = jQuery('#inputbandwidth_price').val();
+             params['status'] = jQuery('#inputstatus').val();
+             params['info'] = jQuery('#inputinfo').val();
+             jQuery.post('/idc_bill/add/',params,function (data) {
+                 console.log(data)
+                 if(data['is_ok']){
+                     var info = '添加成功';
+                     var text = '';
+                     var status = 'success';
+                 }else{
+                     var info = '添加失败';
+                     var text = data['error'];
+                     var status = 'error';
+                 }
+                 user_alert(info,text,status)
+             })
+            })
+            //删除IDC信息
+            jQuery('.delete-idcs').click(function() {
+             var that = this
+             var id = jQuery(that).data('id')
+             var idcname = jQuery(that).data('idcname')
+             var date = jQuery(that).data('date')
+             var params = {}
+             params['id']  = id
+             params['idcname']  = idcname
+             params['date'] = date
+             swal({
+                title: "您确定要删除吗？",
+                text: "您确定要删除"+idcname+' '+date+"的信息吗?",
+                type: "warning",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonText: "是的，我要删除",
+                cancelButtonText: "不是,我点错了",
+                confirmButtonColor: "#ec6c62"
+            }, function() {
+                jQuery.post('/idc_bill/delete/', params, function(data) {
+                    if(data['is_ok']){
+                         var info = '删除成功';
+                         var text = idcname+' '+date+'已删除';
+                         var status = 'success';
+                    }else{
+                         var info = '删除失败';
+                         var text = data['error'];
+                         var status = 'error';
+                    }
+                    user_alert(info,text,status)
+                });
+            });
+
+         });
+
+            //alater函数
+            function user_alert(info,text,status) {
+            swal({
+                 title: info,
+                 text: text,
+                 type: status,
+                 showCancelButton: false,
+                 confirmButtonColor: "#DD6B55",
+                 confirmButtonText: "确认",
+                 cancelButtonText: "关闭",
+                 closeOnConfirm: true,
+                 closeOnCancel: false
+            },
+            function(isConfirm){
+                window.location.reload()
+            });
+
+         }
+        })
+    </script>
+{% endblock %}

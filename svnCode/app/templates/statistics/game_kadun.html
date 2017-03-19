@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}游戏卡顿统计{% endblock %}
+{% block link %}
+<style>
+.jiantou_up{
+  color: #08ff72 !important;
+}
+.jiantou_down{
+  color: #ff0816 !important;
+}
+</style>
+{% endblock %}
+{% block req_url_7k7k %}/caton/?ptname=7k7k{% endblock %}
+{% block req_url_4399 %}/caton/?ptname=4399{% endblock %}
+{% block game_kadun %}active{% endblock %}
+{% block main %}
+
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>游戏卡顿统计</li>
+        </ol>
+        <p>
+            <select id='platform' name="platform" class='multiselect dropdown-toggle btn btn-default'>
+                  <option value=7>4399</option>
+                  <option value=3>7k7k</option>
+            </select>
+             &nbsp;<button type="submit" class="btn btn-success search">数据查询</button>
+        </p>
+        <table class="table table-bordered table-striped table-hover info" id="editable">
+          <thead align="center" >
+            <tr class="active">
+                <td width="60">日期</td>
+                <td width="40">平台</td>
+                <td width="40">小于5%</td>
+                <td width="40">5%-15%</td>
+                <td width="40">15%-30%</td>
+                <td width="40">30%-50%</td>
+                <td width="40">50%-70%</td>
+                <td width="40">70%-95%</td>
+                <td width="40">大于95%</td>
+                <td width="40">新手小于5%</td>
+                <td width="40">新手5%-15%</td>
+                <td width="40">新手15%-30%</td>
+                <td width="40">新手30%-50%</td>
+                <td width="40">新手50%-70%</td>
+                <td width="40">新手70%-95%</td>
+                <td width="40">新手大于95%</td>
+            </tr>
+          </thead>
+          <tbody align="center">
+            {% for caton in caton_list %}
+                <tr>
+                    <td>{{ caton['date'] }}</td>
+                    <td>{{ caton['ptname'] }}</td>
+                    <td>{{ caton['caton_5'] }}%</td>
+                    <td>{{ caton['caton_15'] }}%</td>
+                    <td>{{ caton['caton_30'] }}%</td>
+                    <td>{{ caton['caton_50'] }}%</td>
+                    <td>{{ caton['caton_70'] }}%</td>
+                    <td>{{ caton['caton_95'] }}%</td>
+                    <td>{{ caton['caton_100'] }}%</td>
+                    <td>{{ caton['caton_5_new'] }}%</td>
+                    <td>{{ caton['caton_15_new'] }}%</td>
+                    <td>{{ caton['caton_30_new'] }}%</td>
+                    <td>{{ caton['caton_50_new'] }}%</td>
+                    <td>{{ caton['caton_70_new'] }}%</td>
+                    <td>{{ caton['caton_95_new'] }}%</td>
+                    <td>{{ caton['caton_100_new'] }}%</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+{% endblock %}
+
+{% block js %}
+<script>
+    jQuery(document).ready(function () {
+        var platform_select = $.cookie('platform_select');
+        $('#platform option[value=' + platform_select + ']').attr("selected", true);
+    });
+
+    $('#editable').DataTable({
+        "bDestroy": true,
+        "iDisplayLength": 17,
+        "language": {
+            "lengthMenu": "每页 _MENU_ 条记录",
+            "zeroRecords": "没有找到记录",
+            "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+            "infoEmpty": "无记录",
+            "infoFiltered": "(从 _MAX_ 条记录过滤)",
+            "sSearch": "搜索:",
+            "oPaginate": {
+            "sFirst": "首页",
+            "sPrevious": "上一页",
+            "sNext": "下一页",
+            "sLast": "末页"
+            }
+        },
+        "order": [[ 0,"desc" ]]
+    });
+
+    $(".search").click(function () {
+        platformid = $("#platform").val();
+        if(platformid==7){
+            platform = '4399'
+        }else if(platformid==3){
+            platform = '7k7k'
+        };
+        $.cookie('platform_select', platformid);
+        window.location.href='/game_kadun/?ptname=' + platform
+    })
+</script>
+{% endblock %}

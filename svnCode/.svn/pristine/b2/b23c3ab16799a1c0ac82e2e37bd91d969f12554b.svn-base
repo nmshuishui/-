@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}mongo备份监控{% endblock %}
+{% block mongo_monitor %}active{% endblock %}
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>mongo备份监控</li>
+        </ol>
+
+        <table class="table table-striped table-bordered table-hover " id="editable">
+        <thead>
+            <tr>
+                <th style="vertical-align: middle" class="text-center">区服</th>
+                <th style="vertical-align: middle" class="text-center">主机名</th>
+                <th style="vertical-align: middle" class="text-center">IP</th>
+                <th width="40" class="text-center">备份个数(天数)</th>
+                <th style="vertical-align: middle" class="text-center">最新备份文件名</th>
+                <th style="vertical-align: middle" class="text-center">最新大小</th>
+                <th width="40" class="text-center">备份开始时间</th>
+                <th style="vertical-align: middle" class="text-center">备份完成时间</th>
+                <th style="vertical-align: middle" class="text-center">备份用时</th>
+                <th style="vertical-align: middle" class="text-center">宿主机</th>
+                <th style="vertical-align: middle" class="text-center">数据刷新时间</th>
+                <th style="vertical-align: middle" class="text-center">重新查询</th>
+            </tr>
+        </thead>
+        <tbody>
+           {% if servers %}
+           {% for server in servers %}
+                <tr class="gradeX">
+                        <td class="text-center">{{server.qufu}}</td>
+                        <td class="text-center hostname">{{server.hostname}}</td>
+                        <td class="text-center ">{{server.wan_ip}}</td>
+                        <td class="text-center">{{server.back_num}}</td>
+                        <td class="text-center back_name">{{server.back_name}}</td>
+                        <td class="text-center back_size">{{server.back_size}}</td>
+                        <td class="text-center">{{server.back_starttime}}</td>
+                        <td class="text-center">{{server.back_endtime}}</td>
+                        <td class="text-center">{{server.back_used_time}}</td>
+                        <td class="text-center">{{server.server_id}}</td>
+                        <td class="text-center">{{server.refresh_time}}</td>
+                        <td class="text-center">
+                            <button data-ip="{{server.wan_ip}}" class="btn btn-xs btn-info request">查询</button>
+                            <button data-ip="{{server.wan_ip}}" class="btn btn-xs btn-info update">修改备份时间</button>
+                        </td>
+                 </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+        </table>
+
+    </div>
+{% endblock %}
+
+
+{% block dialog %}
+        <!--更新模态窗-->
+        <div class="modal fade"  id ="updateModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">修改mongo备份开始时间</h4>
+              </div>
+              <div class="modal-body">
+                <p hidden id="uperrorMsg" class="text-danger" style="color:red"></p> <!-- for error msg-->
+                    <form id="updateForm" class="form-horizontal nice-validator n-yellow" novalidate="novalidate">
+                    <div class="form-group">
+                        <label for="back_start_time" class="col-sm-2 control-label">几点几分</label>
+                        <div class="col-sm-8">
+                            <input id="back_start_time" name="back_start_time" placeholder="05:05" type="text" class="form-control">
+                        </div>
+                    </div>
+                <div class="form-group">
+                    <div class="modal-footer">
+                         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="updatebtn">确认</button>
+                    </div>
+                </div> <!--button-->
+                </form> <!--form-->
+              </div> <!--modal-body-->
+
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+{% endblock %}
+
+
+
+{% block script %}
+<script type="text/javascript">
+
+$(".request").click(function() {
+    ip = $(this).attr('data-ip');
+    $.post('/mongo_update/', {'ip':ip}, function () {
+         window.location.reload()
+   });
+        return false
+});
+
+
+$(".update").click(function(){
+    var ip=$(this).attr("data-ip");
+    $('#updateModal').modal('show');
+    $('#updatebtn').attr('ip',ip)
+});
+
+
+$("#updatebtn").on('click',function(){
+    var uptate_ip = $(this).attr('ip');
+    var time = $("#back_start_time").val();
+    var str = {'wan_ip': uptate_ip, 'back_start_time': time};
+    var url = '/update_mongo_starttime/';
+   $.post(url,str,function(data){
+        data=JSON.parse(data);
+        if (data['code']==0){   //recevie json object
+             swal({title: "更新成功"}, function () {
+                $('#updateModal').modal('hide');
+                 window.location.reload()
+             })
+        }else{
+             swal(data['errmsg'])
+              }
+   });
+        return false
+});
+
+
+$('#editable').DataTable({
+    "bDestroy": true,
+    "iDisplayLength": 17,
+    "language": {
+        "lengthMenu": "每页 _MENU_ 条记录",
+        "zeroRecords": "没有找到记录",
+        "sInfo": "第 _PAGE_ 页 ( 总共 _PAGES_ 页 ),显示第 _START_ 至 _END_ 项(总共 _TOTAL_ 项)",
+        "infoEmpty": "无记录",
+        "infoFiltered": "(从 _MAX_ 条记录过滤)",
+        "sSearch": "搜索:",
+        "oPaginate": {
+        "sFirst": "首页",
+        "sPrevious": "上一页",
+        "sNext": "下一页",
+        "sLast": "末页"
+        }
+    },
+    "order": [[ 0,"asc" ]],
+    drawCallback: function () {
+        var d = new Date();
+        var year = d.getFullYear();
+        var month = d.getMonth()+1;
+        var day = d.getDate();
+
+        if(month<10) {
+            month = "0" + month;
+        } else {
+                month = month.toString();
+        };
+
+        if(day<10){
+            day = "0" + day;
+        } else {
+            day = day.toString();
+        }
+
+        date = year + month + day;
+
+        $(".back_name").each(function () {
+            var back_name_cut = ($(this).text()).substr(0,8);
+
+            if(back_name_cut != date){
+                $(this).css("color", "red")
+            }
+        });
+
+        $(".back_size").each(function () {
+            var back_size = $(this).text();
+            if( back_size == '1M'){
+                $(this).css("color", "red")
+        }
+        })
+    }
+})
+</script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block link %}<link rel="stylesheet" type="text/css" href="/static/css/bootstrap-datetimepicker.min.css">{% endblock %}
+{% block title %}游戏数据日统计{% endblock %}
+{% block data_day %}active{% endblock %}
+
+{% block main %}
+<div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>游戏数据日统计</li>
+        </ol>
+        <p>
+            <input type="text" value="{{ date }}" id="datetimepicker" class="btn btn-default">
+            <select id='platform' name="platform" class='multiselect dropdown-toggle btn btn-default'>
+                  <option value=7>4399</option>
+                  <option value=3>7k7k</option>
+                  <option value=10>2144</option>
+                  <option value=21>360</option>
+                  <option value=13>腾讯</option>
+                  <option value=25>铁血</option>
+                  <option value=27>迅雷</option>
+                  <option value=22>酷狗</option>
+                  <option value=9>风云</option>
+            </select>
+             &nbsp;<button type="submit" class="btn btn-success history">历史查询</button>
+            <!--导出excel只能用a标签??? 用ajax get的方法点击按钮后不能生成excel文件-->
+            <a type="button" class="btn btn-success csv" href="">导出数据</a>
+            <a type="button" class="btn btn-success gua_list" href="">导出开挂名单</a>
+        </p>
+    <table class="table table-striped table-bordered table-hover " id="idc_table">
+    <thead>
+        <tr>
+            <th style="vertical-align: middle" class="text-center">序号</th>
+            <th style="vertical-align: middle" class="text-center">区服</th>
+            <th style="vertical-align: middle" class="text-center">日期</th>
+            <th style="vertical-align: middle" class="text-center">新增注册用户数</th>
+            <th style="vertical-align: middle" class="text-center">登录用户数</th>
+            <th style="vertical-align: middle" class="text-center">用户登录次数</th>
+            <th style="vertical-align: middle" class="text-center">付费用户数</th>
+            <th style="vertical-align: middle" class="text-center">付费次数</th>
+            <th style="vertical-align: middle" class="text-center">付费用户ARPU</th>
+            <th style="vertical-align: middle" class="text-center">平均在线</th>
+            <th style="vertical-align: middle" class="text-center">峰值在线</th>
+            <th style="vertical-align: middle" class="text-center">平均在线ARPU</th>
+            <th width="80" class="text-center">登录用户付费转化率</th>
+            <th width="80" class="text-center">新增注册用户付费转化率</th>
+            <th style="vertical-align: middle" class="text-center">充值金额</th>
+            <th width="80" style="vertical-align: middle" class="text-center">新增付费用户数</th>
+        </tr>
+    </thead>
+    <tbody>
+       {% if datas %}
+       {% for data in datas %}
+            <tr class="gradeX">
+                    <td class="text-center">{{loop.index}}</td>
+                    <td class="text-center">{{data.qufu}}</td>
+                    <td class="text-center">{{data.data_date}}</td>
+                    <td class="text-center">{{data.new_reg_user_num}}</td>
+                    <td class="text-center">{{data.login_user_num}}</td>
+                    <td class="text-center">{{data.user_login_num}}</td>
+                    <td class="text-center">{{data.pay_user_num}}</td>
+                    <td class="text-center">{{data.pay_num}}</td>
+                    <td class="text-center">{{data.pay_user_ARPU}}</td>
+                    <td class="text-center">{{data.avg_online}}</td>
+                    <td class="text-center">{{data.mountain_online}}</td>
+                    <td class="text-center">{{data.avg_online_ARPU}}</td>
+                    <td class="text-center">{{data.login_user_pay_trans_rate}}</td>
+                    <td class="text-center">{{data.new_reg_user_pay_transe_rate}}</td>
+                    <td class="text-center">{{data.pay_money}}</td>
+                    <td class="text-center">{{data.new_pay_user_num}}</td>
+             </tr>
+        {% endfor %}
+        {% endif %}
+    </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        date = $("#datetimepicker").val();
+
+        var platform = $.cookie('platform');
+        $('#platform option[value=' + platform + ']').attr('selected',true);
+
+        href_str = '/data_download/?date=' + date + '&platform=' + platform;
+        gua_list = '/kai_gua_list/?date=' + date.substring(0,4) + date.substring(5,7) + date.substring(8,10);
+        $(".csv").attr('href', href_str);
+        $(".gua_list").attr('href', gua_list)
+    });
+
+    $("#datetimepicker").datetimepicker({
+        bootcssVer: 3,
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        startView: 2,
+        minView: 2,
+        autoclose: true,
+        todayBtn: false,
+    });
+
+    $(".history").on('click', function () {
+        date = $("#datetimepicker").val();
+        platform = $("#platform").val();
+
+        $.cookie('platform', platform, { expires: 1 });
+
+        $.get('/data_day/', {'date':date, 'platform':platform}, function (data) {
+            window.location.href='/data_day/?date=' + date + '&platform=' + platform
+        })
+    });
+</script>
+{% endblock %}}

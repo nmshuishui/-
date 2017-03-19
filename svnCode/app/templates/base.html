@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/font-awesome-4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/jquery.dataTables.min.css">
+    {% block link %}{% endblock %}                    <!--  block link -->
+    <title>{% block title %}{% endblock %}</title>    <!--  block title -->
+    <style type="text/css">
+            .left {
+                float: left;
+                height: 0px;
+            }
+
+            .right {
+                height: 0px;
+            }
+
+            .nav-header.collapsed > span.glyphicon-chevron-toggle:before {
+                content: "\e114";
+            }
+
+            .nav-header > span.glyphicon-chevron-toggle:before {
+                content: "\e113";
+            }
+
+            .secondmenu a {
+                font-size: 12px;
+                color: #4A515B;
+                text-align: center;
+            }
+
+            .secondmenu li{
+                background-color: #eee;
+                border-color: #428bca;
+            }
+        </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+{#      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">#}
+{#        <span class="sr-only">Toggle navigation</span>#}
+{#        <span class="icon-bar"></span>#}
+{#        <span class="icon-bar"></span>#}
+{#        <span class="icon-bar"></span>#}
+{#      </button>#}
+      <a class="navbar-brand" href="/user_center/">烈焰畅游运维管理后台</a>
+      <a class="navbar-brand" href="http://121.201.72.2:8080/client/" TARGET="_blank">CloudStack管理后台</a>
+      <a class="navbar-brand" href="http://zabbix.lieyan.com.cn/screens.php?elementid=37&sid=c30e42971d4f6025&user=guest" TARGET="_blank">在线人数监控</a>
+      <a class="navbar-brand" href="http://state.lieyan.com.cn/fps/fps_new.html" TARGET="_blank">实时数据</a>
+      <a class="navbar-brand" href="http://wiki.lieyan.com.cn/index.php?title=%E9%A6%96%E9%A1%B5" TARGET="_blank">WIKI</a>
+      <a class="navbar-brand" href="http://zentao.fps.ppweb.com.cn" TARGET="_blank">禅道</a>
+    </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a href="#" id="showDateTime"></a>
+            </li>
+
+            <li  class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">欢迎 {{ session.username }}<span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="/user_center/">个人中心</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/logout/">退出登录</a></li>
+                  </ul>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">游戏更新管理<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="http://10.0.10.193:8088/pms/" target="_blank">创世兵魂PMS(内网)</a></li>
+                <li><a href="http://10.0.10.51:5000/" target="_blank">创世联盟PMS(内网)</a></li>
+                <li class="divider"></li>
+                <li><a href="http://my.4399.com/yxcsbh/?from=news&server_test=strom" target="_blank">4399更新入口地址</a></li>
+                <li><a href="http://web.7k7k.com/games/csbh/test_csbh_login.php?qq-pf-to=pcqq.c2c" target="_blank">7k7k更新入口地址</a></li>
+                <li><a href="https://portal.chinanetcenter.com/cas/login?service=https%3A%2F%2Fsi.chinanetcenter.com%2Fr_sec_login" target="_blank">网宿科技CDN</a></li>
+                <li><a href="https://console.qcloud.com/cdn" target="_blank">腾迅CDN</a></li>
+                <li><a href="/logout/">退出登录</a></li>
+              </ul>
+            </li>
+        </ul>
+      </div>
+
+    </div>
+</nav>
+
+
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-2 left" style="width:10%;">
+
+        <ul class="nav nav-pills nav-stacked">
+            <li><label class="tree-toggler nav-header"><i class="fa fa-group"></i> 用户管理</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block user_center %}{% endblock %}"><a href="/user_center/"><span class="glyphicon glyphicon-user"></span> 个人中心</a></li>
+                    {% if session.role == 'admin' %}
+                        <li class="{% block user_list %}{% endblock %}"><a href="/users/"><i class="fa fa-group"></i> 用户列表</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header"><span class="glyphicon glyphicon-qrcode"></span> 代码管理</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block code_release %}{% endblock %}"><a href="/code_release/"><i class="fa fa-code"></i> 代码发布</a></li>
+                    <li class="{% block gm_update %}{% endblock %}"><a href="/gm_update/"><i class="fa fa-code"></i> GM更新</a></li>
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header"><span class="glyphicon glyphicon-tree-conifer"></span> 资产管理</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block idc %}{% endblock %}"><a href="/idc/"><i class="fa fa-institution"></i> 机房管理</a></li>
+                    <li class="{% block cabinet %}{% endblock %}"><a href="/cabinet/"><i class="fa fa-building"></i> 机柜管理</a></li>
+                    <li class="{% block server %}{% endblock %}"><a href="/server/"><i class="fa fa-server"></i> 物理宿主机管理</a></li>
+                    <li class="{% block virtuals %}{% endblock %}"><a href="/virtuals/"><i class="fa fa-server"></i> 虚拟服务器管理</a></li>
+                    <li class="{% block inner %}{% endblock %}"><a href="/inner/"><i class="fa fa-server"></i> 内网服务器管理</a></li>
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header"><span class="glyphicon glyphicon-eye-open"></span> 监控</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block operating %}{% endblock %}"><a href="/operating/">运营版本监测</a></li>
+                    <li class="{% block manager %}{% endblock %}"><a href="/manager/">运维版本监测</a></li>
+                    <li class="{% block mongo_monitor %}{% endblock %}"><a href="/mongo_monitor/">mongo本地备份监控</a></li>
+                    <li class="{% block backupServer_monitor %}{% endblock %}"><a href="/backupServer_monitor/">mongo异地备份监控</a></li>
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header"><span class="glyphicon glyphicon-leaf"></span> 创世兵魂数据统计</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block data_day %}{% endblock %}"><a href="/data_day/">游戏数据日统计</a></li>
+                    <li class="{% block data_week %}{% endblock %}"><a href="/data_week/">游戏数据周统计</a></li>
+                    <li class="{% block data_month %}{% endblock %}"><a href="/data_month/">游戏数据月统计</a></li>
+                    <li class="{% block data_total %}{% endblock %}"><a href="/data_total/">游戏数据累计统计</a></li>
+                    <li class="{% block data_trend %}{% endblock %}"><a href="/data_trend/">游戏数据收入趋势</a></li>
+                    <li class="{% block enter_battle %}{% endblock %}"><a href="/enter_battle/">进入战斗统计</a></li>
+                    <li class="{% block battle_frame_rate %}{% endblock %}"><a href="/battle_frame_rate/">战斗帧率统计</a></li>
+                    <li class="{% block game_mouse %}{% endblock %}"><a href="/game_mouse/">鼠标移动统计</a></li>
+                    <li class="{% block game_load %}{% endblock %}"><a href="/game_load/">游戏加载统计</a></li>
+                    <li class="{% block game_mem %}{% endblock %}"><a href="/game_mem/">游戏内存统计</a></li>
+                    <li class="{% block game_kadun %}{% endblock %}"><a href="/game_kadun/">游戏卡顿统计</a></li>
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header"><span class="glyphicon glyphicon-usd"></span> IDC成本统计</label>
+                <ul class="nav nav-list tree nav-pills nav-stacked">
+                    <li class="{% block idc_trend %}{% endblock %}"><a href="/idc_trend/">ID成本趋势</a></li>
+                    <li class="{% block idc_bill %}{% endblock %}"><a href="/idc_bill/">IDC月度详单</a></li>
+                </ul>
+            </li>
+        </ul>
+
+    </div>
+{% block main %}{% endblock %}           <!--  block main -->
+
+</div>
+</div>
+{% block dialog %}{% endblock %}
+</body>
+
+
+<script type="text/javascript" src="/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/sweetalert.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        $('label.tree-toggler').click(function () {
+		$(this).parent().children('ul.tree').toggle(300);
+	});
+    });
+
+    setInterval("showDateTime.innerHTML='当前时间:'+new Date().toLocaleString();",1000);
+</script>
+{% block script %}{% endblock %}
+{% block js %}{% endblock %}              <!--  block js -->
+</html>

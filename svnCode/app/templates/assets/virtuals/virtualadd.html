@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}添加虚拟服务器{% endblock %}
+{% block virtuals %}active{% endblock %}
+{% block main %}
+    <div class="col-md-10 col-md-offset-2 right">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>添加虚拟服务器</li>
+        </ol>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+        <div class="col-sm-8">
+             <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h3>填写基本信息</h3>
+            </div>
+            <div class="ibox-content">
+                <form id="serverForm" class="form-horizontal nice-validator n-yellow" novalidate="novalidate">
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="qufu" class="col-sm-3 control-label">区服</label>
+                    <div class="col-sm-8">
+                    <input id="qufu" name="qufu" placeholder="qufu" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="platform" class="col-sm-3 control-label">平台ID</label>
+                    <div class="col-sm-8">
+                    <input id="platform" name="platform" placeholder="platform" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="serverid" class="col-sm-3 control-label">ServerID</label>
+                    <div class="col-sm-8">
+                    <input id="serverid" name="serverid" placeholder="serverid" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hostname" class="col-sm-3 control-label">主机名</label>
+                    <div class="col-sm-8">
+                    <input id="hostname" name="hostname" placeholder="Name" type="text" class="form-control" aria-required="true">
+                     </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="lan_ip" class="col-sm-3 control-label">内网IP</label>
+                    <div class="col-sm-8">
+                    <input id="lan_ip" name="lan_ip" placeholder="Lan ip" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="wan_ip" class="col-sm-3 control-label">外网IP</label>
+                    <div class="col-sm-8">
+                    <input id="wan_ip" name="wan_ip" placeholder="Wan ip" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="cpu" class="col-sm-3 control-label">cpu</label>
+                    <div class="col-sm-8">
+                    <input id="cpu" name="cpu" placeholder="cpu" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="mem" class="col-sm-3 control-label">内存</label>
+                    <div class="col-sm-8">
+                    <input id="mem" name="mem" placeholder="mem" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="disk" class="col-sm-3 control-label">硬盘</label>
+                    <div class="col-sm-8">
+                    <input id="disk" name="disk" placeholder="disk" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="master_slave" class="col-sm-3 control-label">mongo主从关系</label>
+                    <div class="col-sm-8">
+                    <input id="master_slave" name="master_slave" placeholder="master_slave" type="text" class="form-control" aria-required="true">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label for="server_id" class="col-sm-3 control-label">宿主机</label>
+                    <div class="col-sm-8">
+                    <select id="server_id" name="server_id" class='multiselect dropdown-toggle btn btn-default'>
+
+                    </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-2">
+                    <button id="submit_button" class="btn btn-primary">确认保存</button>
+                    <button id='cancel_button' class="btn btn-white" type="reset">取消</button>
+                    <button class="btn btn-white" type="reset">重置</button>
+                    </div>
+                </div>
+                <div style="color:red" class="text-center" id="errmsg"></div>
+                </form>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+//$('#serverForm').Validform({tiptype:3})
+//$("#submit_button").click(function(){
+//    var msg=$('.Validform_wrong').text()
+//    var str=$("#serverForm").serialize()
+//    var str1='&cabinet_id='+$('#cabinet_id').val()
+//    if (!msg){
+//	$.post("/serveradd/",str+str1,function(data){
+//	    data=JSON.parse(data);
+//	    if(data["code"] == 0){
+//		swal({
+//		    title:'Congratulation',
+//		    text:data['result'],
+//		    type:'success',
+//		    confirmButtonText:'确定'
+//		    },function(){
+//			location.href='/server/'
+//		    })
+//	    }else{
+//		swal('Error',data['errmsg'],'error')
+//	    }
+//	})
+//	return false
+//    }
+//});
+
+    $('#cancel_button').click(function(){
+        location.href='/virtuals/'
+    });
+
+    var str = '';
+    $.getJSON('/serverinfo/',function(data){
+        console.log(data);
+        for(var i=0;i<data.length;i++) {
+            str += '<option value="' + data[i]['id'] + '">' + data[i]['hostname'] + '</option>';
+            $('#server_id').html(str);
+        }
+    });
+
+    $('#submit_button').click(function() {
+        $.post('/virtualadd/', $('#serverForm').serialize(), function (data) {
+            data = JSON.parse(data);
+            if(data["code"] == 0){
+            swal({
+                title:'Congratulation',
+                text:data['result'],
+                type:'success',
+                confirmButtonText:'确定'
+                },function(){
+                location.href='/virtuals/'
+                })
+            }else{
+            swal('Error',data['errmsg'],'error')
+            }
+        });
+            return false
+    })
+</script>
+{% endblock %}

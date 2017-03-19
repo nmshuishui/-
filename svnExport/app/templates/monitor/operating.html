@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}兵魂服务版本号监测(运营){% endblock %}
+{% block css %}{% endblock %}
+{% block operating %}active{% endblock %}
+{% block main %}
+
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>运营版本监测</li>
+        </ol>
+        <table class="table table-bordered table-striped table-hover info">
+          <thead align="center" >
+            <tr class="active">
+                <td width="20">ID</td>
+                <td width="40">平台</td>
+                <td width="40">充值ID</td>
+                <td width="40">域名</td>
+                <td width="40">Match版本</td>
+                <td width="40">Battle版本</td>
+                <td width="40">PVR版本</td>
+                <td width="40">State版本</td>
+                <td width="40">Transfer版本</td>
+            </tr>
+          </thead>
+          <tbody align="center">
+            {% for server in server_list %}
+                <tr>
+                    <td>{{ server['id'] }}</td>
+                    <td>{{ server['name'] }}</td>
+                    <td>{{ server['billingid'] }}</td>
+                    <td>{{ server['server'] }}</td>
+                    <td class="status_info_match" id="status_info_match">{{ server['match_v'] }}</td>
+                    <td class="status_info">{{ server['batt_v'] }}</td>
+                    <td class="status_info">{{ server['pvr_v'] }}</td>
+                    <td class="status_info">{{ server['state_v'] }}</td>
+                    <td class="status_info">{{ server['trans_v'] }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock %}
+{% block javascipt %}
+    <script type="text/javascript" language="javascript">
+        $(".status_info").each(function(i){
+            var content = new Number($(this).text());
+                if(isNaN(content)){
+                    $(this).css({"background-color":"#dff0af",
+                        "color":"red",
+                        "font-weight":"600",
+                    })
+                }
+            }
+        )
+        $(".status_info_match").each(function(i){
+            var content = new Number($(this).text());
+            console.log(content)
+                if(!isNaN(content)){
+                    $(this).css({"background-color":"#dff0af",
+                        "color":"blue",
+                        "font-weight":"600",
+                    })
+                }
+            }
+        )
+        function myrefresh() {
+           window.location.reload();
+        }
+        setTimeout('myrefresh()',30*1000);
+    </script>
+{% endblock %}

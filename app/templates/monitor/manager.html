@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}兵魂服务版本号监测(运维){% endblock %}
+{% block css %}{% endblock %}
+{% block manager %}active{% endblock %}
+{% block main %}
+
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>运维版本监测</li>
+        </ol>
+        <table class="table table-bordered table-striped table-hover info">
+          <thead align="center" >
+            <tr class="active">
+                <td width="20">ID</td>
+                <td width="40">平台</td>
+                <td width="40">域名</td>
+                <td width="40">Batt<br>更新</td>
+                <td width="40">Match<br>更新</td>
+                <td width="40">Enroll<br>更新</td>
+                <td width="40">PVR<br>更新</td>
+                <td width="40">Trans<br>更新</td>
+                <td width="40">Ext<br>更新</td>
+                <td width="40">War<br>更新</td>
+                <td width="40">Config<br>更新</td>
+                <td width="40">Batt<br>启动</td>
+                <td width="40">Match<br>启动</td>
+                <td width="40">Enroll<br>启动</td>
+                <td width="40">PVR<br>启动</td>
+                <td width="40">State<br>启动</td>
+                <td width="40">Trans<br>启动</td>
+            </tr>
+          </thead>
+          <tbody align="center">
+            {% for server in server_list %}
+                <tr>
+                    <td width="20">{{ server['id'] }}</td>
+                    <td width="40">{{ server['name'] }}</td>
+                    <td width="40">{{ server['server'] }}</td>
+                    <td width="40">{{ server['batt_t'] }}</td>
+                    <td width="40">{{ server['match_t'] }}</td>
+                    <td width="40">{{ server['enro_t'] }}</td>
+                    <td width="40">{{ server['pvr_t'] }}</td>
+                    <td width="40">{{ server['tran_t'] }}</td>
+                    <td width="40">{{ server['ext_t'] }}</td>
+                    <td width="40">{{ server['war_t'] }}</td>
+                    <td width="40">{{ server['conf_t'] }}</td>
+                    <td width="40">{{ server['start_batt'] }}</td>
+                    <td width="40">{{ server['start_match'] }}</td>
+                    <td width="40">{{ server['start_enro'] }}</td>
+                    <td width="40">{{ server['start_pvr'] }}</td>
+                    <td width="40">{{ server['start_state'] }}</td>
+                    <td width="40">{{ server['start_trans'] }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock %}
+{% block javascipt %}
+    <script type="text/javascript" language="javascript">
+        $(".status_info").each(function(i){
+            var content = new Number($(this).text());
+                if(isNaN(content)){
+                    $(this).css({"background-color":"#dff0af",
+                        "color":"red",
+                        "font-weight":"600",
+                    })
+                }
+            }
+        )
+        $(".status_info_match").each(function(i){
+            var content = new Number($(this).text());
+            console.log(content)
+                if(!isNaN(content)){
+                    $(this).css({"background-color":"#dff0af",
+                        "color":"blue",
+                        "font-weight":"600",
+                    })
+                }
+            }
+        )
+        function myrefresh() {
+           window.location.reload();
+        }
+        setTimeout('myrefresh()',30*1000);
+    </script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}IDC趋势{% endblock %}
+{% block css %}{% endblock %}
+{% block idc_trend %}active{% endblock %}
+{% block main %}
+    <div class="table-responsive">
+        <ol class="breadcrumb">
+          <li><a href="/user_center/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <li>IDC成本趋势</li>
+        </ol>
+        <div>
+            <form>
+                <p>
+                    <a><input type="year" name="years" value="{{ years }}" class="btn btn-default years">&nbsp;<button type="submit" class="btn btn-success years_commit" >历年查询</button></a>
+                </p>
+            </form>
+        </div>
+        <div id="container" style="min-width:800px;height:600px"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="application/javascript" src="/static/js/highcharts.js"></script>
+{% endblock %}
+{% block js %}
+    <script type="application/javascript">
+        $(function () {
+            var years = jQuery('.years').val()
+            console.log(years)
+            url = '/idc_trend/data/?dates=' + years
+        $.getJSON(url,function (data) {
+
+        $('#container').highcharts({
+            title: {
+                text: years+'年IDC成本趋势',
+                x: -20 //center
+            },
+            subtitle: {
+                text: 'Source: 烈焰畅游运维部',
+                x: -20
+            },
+            xAxis: {
+                categories: ['1月', '2月', '3月', '4月', '5月', '6月',
+                    '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+                title: {
+                    text: '成本支出(元)'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: '元'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: data.all_data   /*直接读取后端返回的json*/
+        });
+{#            console.log(data.all_data)  //调试使用#}
+        })
+    });
+    </script>
+{% endblock %}
