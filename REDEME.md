@@ -1,3 +1,4 @@
+# 2017.11
 pip install --upgrade pip
 pip install -r requirements.txt (sudo su - 以root用户执行)
 pip freeze > requirements.txt(生成)
